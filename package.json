@@ -1,6 +1,6 @@
 {
-  "name": "gulp-flowtype",
-  "version": "0.4.9",
+  "name": "gulp-flowtype-opensrcken",
+  "version": "1.0.1",
   "description": "Run Facebook's Flow in your gulp pipeline",
   "keywords": [
     "gulp",
@@ -26,10 +26,7 @@
     "babel-types": "^6.3.14",
     "event-stream": "~3.3.0",
     "flow-bin": "^0.20.1",
-    "flow-to-jshint": "~0.2.0",
     "gulp-util": "~3.0.1",
-    "jshint": "^2.8.0",
-    "jshint-stylish": "~2.1.0",
     "log-symbols": "^1.0.1",
     "q": "^1.1.2",
     "through2": "~2.0.0"

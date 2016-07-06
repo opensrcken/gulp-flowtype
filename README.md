@@ -1,3 +1,9 @@
+# About this fork
+
+- Uses textual output rather than JSON output, so error output is not truncated.
+- Removes outdated options that flow no longer supports.
+- Removed the `abort` option, effectively making it the default behavior.
+
 ## gulp-flowtype [![Build Status][travis-image]][travis-url] [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url] [![Gitter chat][gitter-image]][gitter-url]
 
 > Run [Facebook's Flow](http://flowtype.org/) in your gulp pipeline
@@ -42,21 +48,6 @@ gulp.task('typecheck', function() {
 
 ### Options
 
-##### options.all
-Type: `Boolean`
-Default: `false`
->Typecheck all files, not just @flow.
-
-##### options.weak
-Type: `Boolean`
-Default: `false`
->Typecheck with weak inference, assuming dynamic types by default.
-
-##### options.declarations
-Type: `String`
-Default: `empty`
->The path to declared files (interfaces) to third-party libraries
-
 ##### options.killFlow
 Type: `Boolean`
 Default: `false`
@@ -67,17 +58,13 @@ Type: `Boolean`
 Default: `true`
 >Notify your command prompt of a Typecheck error with a beep
 
-##### options.abort
-Type: `Boolean`
-Default: `false`
->Abort the gulp task after the first Typecheck error
-
 ##### options.reporter
 Type: `function`
 Default: [sindresorhus/jshint-stylish](https://github.com/sindresorhus/jshint-stylish)
 >Optionally specify a custom reporter.  This needs to conform to the specifications in http://jshint.com/docs/reporters/
 
 ## Release History
+ * 2016-07-05    v1.0.0    [Improvement] Forked. Update code to reflect latest version of Flow. Ensure full output is shown, by using textual rather than JSON output. Abort the gulp task by default when there is a compilation error.
  * 2016-01-18    v0.4.9    [Improvement] Update dependencies + fix broken code [#38](https://github.com/charliedowler/gulp-flowtype/pull/38)
  * 2015-09-13    v0.4.8    [Fix] Downgrade flow
  * 2015-05-05    v0.4.7    [Improvement] Add option for custom reporter

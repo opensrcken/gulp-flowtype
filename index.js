@@ -11,8 +11,6 @@ var through = require('through2');
 var flowBin = require('flow-bin');
 var logSymbols = require('log-symbols');
 var childProcess = require('child_process');
-var flowToJshint = require('flow-to-jshint');
-var stylishReporter = require('jshint-stylish').reporter;
 
 /**
  * Flow check initialises a server per folder when run,
@@ -21,39 +19,6 @@ var stylishReporter = require('jshint-stylish').reporter;
 var servers = [];
 var passed = true;
 
-/**
- * Wrap critical Flow exception into default Error json format
- */
-function fatalError(stderr) {
-  return {
-    errors: [{
-      message: [{
-        path: '',
-        code: 0,
-        line: 0,
-        start: 0,
-        descr: stderr
-      }]
-    }]
-  };
-}
-
-function optsToArgs(opts) {
-  var args = [];
-
-  if (opts.all) {
-    args.push('--all');
-  }
-  if (opts.weak) {
-    args.push('--weak');
-  }
-  if (opts.declarations) {
-    args.push('--lib', opts.declarations);
-  }
-
-  return args;
-}
-
 function getFlowBin() {
     return process.env.FLOW_BIN || flowBin;
 }
@@ -61,56 +26,34 @@ function getFlowBin() {
 function executeFlow(_path, options) {
   var deferred = Q.defer();
 
-  var opts = optsToArgs(options);
-
-  var command = opts.length || options.killFlow ? (() => {
+  var command = options.killFlow ? (() => {
     servers.push(path.dirname(_path));
     return 'check';
   })() : 'status';
 
   var args = [
     command,
-    ...opts,
-    '/' + path.relative('/', _path),
-    '--json'
+    '/' + path.relative('/', _path)
   ];
 
   var stream = childProcess.spawn(getFlowBin(), args);
 
   stream.stdout.on('data', data => {
-    var parsed;
-    try {
-      parsed = JSON.parse(data.toString());
+    if (data.indexOf('No errors!') < 0) {
+      console.log(data.toString());
     }
-    catch(e) {
-      parsed = fatalError(data.toString());
+  });
+
+  stream.stderr.on('data', data => {
+    if (data.indexOf('flow is still initializing') < 0) {
+      console.log(data.toString());
     }
-    var result = {};
-
-    // loop through errors in file
-    result.errors = parsed.errors.filter(function (error) {
-      let isCurrentFile = error.message[0].path === _path;
-      let generalError = (/(Fatal)/.test(error.message[0].descr));
-
-      return isCurrentFile || generalError;
-    });
-
-    if (result.errors.length) {
-      passed = false;
-
-      var reporter = typeof options.reporter === 'undefined' ?
-        stylishReporter : options.reporter.reporter;
-
-      reporter(flowToJshint(result));
-
-      if (options.abort) {
-        deferred.reject(new gutil.PluginError('gulp-flow', 'Flow failed'));
-      }
-      else {
-        deferred.resolve();
-      }
-    }
-    else {
+  });
+  
+  stream.on('close', code => {
+    if (code !== 0) {
+      deferred.reject(new gutil.PluginError('gulp-flow', 'Flow failed'));
+    } else {
       deferred.resolve();
     }
   });
