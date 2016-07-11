@@ -1,6 +1,6 @@
 {
   "name": "gulp-flowtype-opensrcken",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Run Facebook's Flow in your gulp pipeline",
   "keywords": [
     "gulp",
@@ -25,7 +25,6 @@
     "babel-polyfill": "^6.3.14",
     "babel-types": "^6.3.14",
     "event-stream": "~3.3.0",
-    "flow-bin": "^0.26.0",
     "gulp-util": "~3.0.1",
     "log-symbols": "^1.0.1",
     "q": "^1.1.2",
@@ -39,6 +38,9 @@
     "mocha": "~2.3.4",
     "mocha-lcov-reporter": "~1.0.0",
     "should": "~8.0.0"
+  },
+  "peerDependencies": {
+    "flow-bin": "^0.28.0"
   },
   "engines": {
     "node": ">=0.8.0",
