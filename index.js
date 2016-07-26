@@ -44,12 +44,20 @@ function executeFlow(_path, options) {
     }
   });
 
+  stream.stdout.on('error', data => {
+    console.log('STDOUT ERROR: ' + data.toString());
+  });
+
   stream.stderr.on('data', data => {
     if (data.indexOf('flow is still initializing') < 0) {
       console.log(data.toString());
     }
   });
-  
+
+  stream.stderr.on('error', data => {
+    console.log('STDOUT ERROR: ' + data.toString());
+  });
+
   stream.on('close', code => {
     if (code !== 0) {
       deferred.reject(new gutil.PluginError('gulp-flow', 'Flow failed'));
