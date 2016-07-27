@@ -32,35 +32,46 @@ function executeFlow(_path, options) {
 
   var args = [command, '/' + path.relative('/', _path)];
 
-  var stream = childProcess.spawn(getFlowBin(), args);
-
-  stream.stdout.on('data', function (data) {
-    // if (data.indexOf('No errors!') < 0) {
-    console.log(data.toString());
-    // }
-  });
-
-  stream.stdout.on('error', function (data) {
-    console.log('STDOUT ERROR: ' + data.toString());
-  });
-
-  stream.stderr.on('data', function (data) {
-    // if (data.indexOf('flow is still initializing') < 0) {
-    console.log(data.toString());
-    // }
-  });
-
-  stream.stderr.on('error', function (data) {
-    console.log('STDERR ERROR: ' + data.toString());
-  });
-
-  stream.on('close', function (code) {
-    if (code !== 0) {
-      deferred.reject(new gutil.PluginError('gulp-flow', 'Flow failed'));
+  childProcess.execFile(getFlowBin(), args, (err, stdout, stderr) => {
+    if (err) {
+      console.log(err);
+      deferred.reject(new gutil.PluginError('gulp-flow', err));
     } else {
+      console.log("STDOUT:", stdout);
+      console.log("STDERR:", stderr);
       deferred.resolve();
     }
   });
+
+  // var stream = childProcess.spawn(getFlowBin(), args);
+  //
+  // stream.stdout.on('data', function (data) {
+  //   // if (data.indexOf('No errors!') < 0) {
+  //   console.log(data.toString());
+  //   // }
+  // });
+  //
+  // stream.stdout.on('error', function (data) {
+  //   console.log('STDOUT ERROR: ' + data.toString());
+  // });
+  //
+  // stream.stderr.on('data', function (data) {
+  //   // if (data.indexOf('flow is still initializing') < 0) {
+  //   console.log(data.toString());
+  //   // }
+  // });
+  //
+  // stream.stderr.on('error', function (data) {
+  //   console.log('STDERR ERROR: ' + data.toString());
+  // });
+  //
+  // stream.on('close', function (code) {
+  //   if (code !== 0) {
+  //     deferred.reject(new gutil.PluginError('gulp-flow', 'Flow failed'));
+  //   } else {
+  //     deferred.resolve();
+  //   }
+  // });
 
   return deferred.promise;
 }
