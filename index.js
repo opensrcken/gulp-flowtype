@@ -1,7 +1,6 @@
 /* @flow weak */
 'use strict';
 
-
 var Q = require('q');
 var fs = require('fs');
 require('babel-polyfill');
@@ -20,45 +19,42 @@ var servers = [];
 var passed = true;
 
 function getFlowBin() {
-    return process.env.FLOW_BIN || flowBin;
+  return process.env.FLOW_BIN || flowBin;
 }
 
 function executeFlow(_path, options) {
   var deferred = Q.defer();
 
-  var command = options.killFlow ? (() => {
+  var command = options.killFlow ? function () {
     servers.push(path.dirname(_path));
     return 'check';
-  })() : 'status';
+  }() : 'status';
 
-  var args = [
-    command,
-    '/' + path.relative('/', _path)
-  ];
+  var args = [command, '/' + path.relative('/', _path)];
 
   var stream = childProcess.spawn(getFlowBin(), args);
 
-  stream.stdout.on('data', data => {
+  stream.stdout.on('data', function (data) {
     // if (data.indexOf('No errors!') < 0) {
     console.log(data.toString());
     // }
   });
 
-  stream.stdout.on('error', data => {
+  stream.stdout.on('error', function (data) {
     console.log('STDOUT ERROR: ' + data.toString());
   });
 
-  stream.stderr.on('data', data => {
+  stream.stderr.on('data', function (data) {
     // if (data.indexOf('flow is still initializing') < 0) {
     console.log(data.toString());
     // }
   });
 
-  stream.stderr.on('error', data => {
+  stream.stderr.on('error', function (data) {
     console.log('STDERR ERROR: ' + data.toString());
   });
 
-  stream.on('close', code => {
+  stream.on('close', function (code) {
     if (code !== 0) {
       deferred.reject(new gutil.PluginError('gulp-flow', 'Flow failed'));
     } else {
@@ -72,11 +68,10 @@ function executeFlow(_path, options) {
 function checkFlowConfigExist() {
   var deferred = Q.defer();
   var config = path.join(process.cwd(), '.flowconfig');
-  fs.exists(config, function(exists) {
+  fs.exists(config, function (exists) {
     if (exists) {
       deferred.resolve();
-    }
-    else {
+    } else {
       deferred.reject('Missing .flowconfig in the current working directory.');
     }
   });
@@ -84,29 +79,28 @@ function checkFlowConfigExist() {
 }
 
 function hasJsxPragma(contents) {
-  return /@flow\b/ig
-    .test(contents);
+  return (/@flow\b/ig.test(contents)
+  );
 }
 
 function isFileSuitable(file) {
   var deferred = Q.defer();
-  if (file.isNull()) {
-    deferred.reject();
-  }
-  else if (file.isStream()) {
-    deferred.reject(new gutil.PluginError('gulp-flow', 'Stream content is not supported'));
-  }
-  else if (file.isBuffer()) {
+  if (file.isDirectory()) {
     deferred.resolve();
-  }
-  else {
+  } else if (file.isNull()) {
+    deferred.reject();
+  } else if (file.isStream()) {
+    deferred.reject(new gutil.PluginError('gulp-flow', 'Stream content is not supported'));
+  } else if (file.isBuffer()) {
+    deferred.resolve();
+  } else {
     deferred.reject();
   }
   return deferred.promise;
 }
 
 function killServers() {
-  var defers = servers.map(function(_path) {
+  var defers = servers.map(function (_path) {
     var deferred = Q.defer();
     childProcess.execFile(getFlowBin(), ['stop'], {
       cwd: _path
@@ -116,42 +110,47 @@ function killServers() {
   return Q.all(defers);
 }
 
-module.exports = function (options={}) {
+module.exports = function () {
+  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
   options.beep = typeof options.beep !== 'undefined' ? options.beep : true;
 
   function Flow(file, enc, callback) {
+    var _this = this;
 
-    var _continue = () => {
-      this.push(file);
+    var _continue = function _continue() {
+      _this.push(file);
       callback();
     };
 
-    isFileSuitable(file).then(() => {
-      var hasPragma = hasJsxPragma(file.contents.toString());
+    isFileSuitable(file).then(function () {
+      var hasPragma = file.contents && hasJsxPragma(file.contents.toString());
       if (options.all || hasPragma) {
-        checkFlowConfigExist().then(() => {
-          executeFlow(file.path, options).then(_continue, err => {
-            this.emit('error', err);
+        checkFlowConfigExist().then(function () {
+          executeFlow(file.path, options).then(_continue, function (err) {
+            _this.emit('error', err);
             callback();
           });
-        }, msg => {
+        }, function (msg) {
           console.log(logSymbols.warning + ' ' + msg);
           _continue();
         });
       } else {
         _continue();
       }
-    }, err => {
+    }, function (err) {
       if (err) {
-        this.emit('error', err);
+        _this.emit('error', err);
       }
       callback();
     });
   }
 
   return through.obj(Flow, function () {
-    var end = () => {
-      this.emit('end');
+    var _this2 = this;
+
+    var end = function end() {
+      _this2.emit('end');
       passed = true;
     };
 
@@ -164,8 +163,7 @@ module.exports = function (options={}) {
     if (options.killFlow) {
       if (servers.length) {
         killServers().done(end);
-      }
-      else {
+      } else {
         end();
       }
     } else {
