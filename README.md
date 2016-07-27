@@ -1,5 +1,8 @@
 # About this fork
 
+- Enables the flow type-checking of directories. Flow's binary is optimized for taking directories
+  as input. Leveraging this can dramatically improve performance over the original repository,
+  for larger codebases.
 - Uses textual output rather than JSON output, so error output is not truncated.
 - Removes outdated options that flow no longer supports.
 - Removed the `abort` option, effectively making it the default behavior.
