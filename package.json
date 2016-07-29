@@ -1,6 +1,6 @@
 {
   "name": "gulp-flowtype-opensrcken",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Run Facebook's Flow in your gulp pipeline",
   "keywords": [
     "gulp",
@@ -40,7 +40,7 @@
     "should": "~8.0.0"
   },
   "peerDependencies": {
-    "flow-bin": "^0.29.0"
+    "flow-bin": ">=0.26.0"
   },
   "engines": {
     "node": ">=0.8.0",

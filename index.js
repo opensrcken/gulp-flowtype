@@ -35,9 +35,9 @@ function executeFlow(_path, options) {
   var stream = childProcess.spawn(getFlowBin(), args);
 
   stream.stdout.on('data', function (data) {
-    // if (data.indexOf('No errors!') < 0) {
-    console.log(data.toString());
-    // }
+    if (data.indexOf('No errors!') < 0) {
+      console.log('STDOUT: ' + data.toString());
+    }
   });
 
   stream.stdout.on('error', function (data) {
@@ -45,9 +45,9 @@ function executeFlow(_path, options) {
   });
 
   stream.stderr.on('data', function (data) {
-    // if (data.indexOf('flow is still initializing') < 0) {
-    console.log(data.toString());
-    // }
+    if (data.indexOf('flow is still initializing') < 0) {
+      console.log('STDERR: ' + data.toString());
+    }
   });
 
   stream.stderr.on('error', function (data) {
