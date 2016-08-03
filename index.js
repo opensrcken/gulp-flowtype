@@ -132,6 +132,7 @@ module.exports = function () {
             callback();
           });
         }, function (msg) {
+          passed = false;
           console.log(logSymbols.warning + ' ' + msg);
           _continue();
         });
