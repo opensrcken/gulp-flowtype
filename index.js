@@ -36,7 +36,7 @@ function executeFlow(_path, options) {
 
   stream.stdout.on('data', function (data) {
     if (data.indexOf('No errors!') < 0) {
-      console.log('STDOUT: ' + data.toString());
+      console.log(data.toString());
     }
   });
 
@@ -46,7 +46,7 @@ function executeFlow(_path, options) {
 
   stream.stderr.on('data', function (data) {
     if (data.indexOf('flow is still initializing') < 0) {
-      console.log('STDERR: ' + data.toString());
+      console.log(data.toString());
     }
   });
 
@@ -78,7 +78,7 @@ function checkFlowConfigExist() {
   return deferred.promise;
 }
 
-function hasJsxPragma(contents) {
+function hasFlowPragma(contents) {
   return (/@flow\b/ig.test(contents)
   );
 }
@@ -116,6 +116,7 @@ module.exports = function () {
   options.beep = typeof options.beep !== 'undefined' ? options.beep : true;
 
   function Flow(file, enc, callback) {
+    passed = true;
     var _this = this;
 
     var _continue = function _continue() {
@@ -124,10 +125,11 @@ module.exports = function () {
     };
 
     isFileSuitable(file).then(function () {
-      var hasPragma = file.contents && hasJsxPragma(file.contents.toString());
+      var hasPragma = file.contents && hasFlowPragma(file.contents.toString());
       if (options.all || hasPragma) {
         checkFlowConfigExist().then(function () {
           executeFlow(file.path, options).then(_continue, function (err) {
+            passed = false;
             _this.emit('error', err);
             callback();
           });
@@ -141,6 +143,7 @@ module.exports = function () {
       }
     }, function (err) {
       if (err) {
+        passed = false;
         _this.emit('error', err);
       }
       callback();

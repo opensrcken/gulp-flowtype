@@ -1,6 +1,6 @@
 {
   "name": "gulp-flowtype-opensrcken",
-  "version": "1.0.8-DEBUG-1",
+  "version": "1.0.9",
   "description": "Run Facebook's Flow in your gulp pipeline",
   "keywords": [
     "gulp",
